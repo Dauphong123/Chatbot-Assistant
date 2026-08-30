@@ -1,6 +1,6 @@
 from torch.utils.data import DataLoader, Dataset
 import torch 
-from components import NormLayer, MultiheadAttentionLayer, FeedForward
+from .components import NormLayer, MultiheadAttentionLayer, FeedForward
 
 class TransformerBlock(torch.nn.Module):
     def __init__(self, cfg): 
