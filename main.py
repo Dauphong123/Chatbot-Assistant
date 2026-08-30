@@ -78,25 +78,6 @@ val_loader = DataLoader(
     num_workers=0
 )
 
-def generate_and_print_sample(model, tokenizer, device, start_context, temparature):
-    model.eval()
-    context_size=model.pos_emb.weight.shape[0]
-    encoded = text_to_token_ids(tokenizer=tokenizer, text=start_context).to(device)
-
-    with torch.no_grad():
-        for _ in range(50):
-            idx_cond = encoded[:, -context_size:]
-            logits = model(idx_cond)
-            logits = logits[:, -1, :] # [batch, context_size, dim]
-            probas = torch.softmax(logits / torch.tensor(temparature), dim=-1)
-            next_idx = torch.multinomial(probas, num_samples=1)
-            encoded = torch.concat((encoded, next_idx), dim=1)
-    
-    decoded = token_ids_to_text(tokenizer=tokenizer, idx=encoded)
-    print(decoded.replace("\n", " "))
-    model.train()
-
-
 def cal_loss_batch(input_batch, target_batch, model, device):
     input_batch = input_batch.to(device)
     target_batch = target_batch.to(device)
@@ -121,8 +102,46 @@ def calc_loss_loader(loader, model, device, num_batches=None):
             sum_loss += loss.item()
     return sum_loss / num_batches    
 
-def generate(model, idx, max_new_tokens, context_size, temparature=0.0, top_k=None, eos_id=None)
+def generate(model, idx, max_new_tokens, context_size, temparature=0.0, top_k=None, eos_id=None):
+    for _ in range(max_new_tokens): 
+        idx = idx[:, -context_size:]
+        with torch.no_grad():
+            logits = model(idx)
+        logits = logits[:, -1, :]
+        
+        if top_k is not None:
+            top_logits, _ = torch.topk(logits, top_k)
+            min_val = top_logits[:, -1]
+            logits = torch.where(
+                logits < min_val,
+                torch.tensor(-float("inf")).to(device),
+                logits
+            )
+        
+        if temparature > 0:
+            logits = logits / temparature
+            probs = torch.softmax(logits, dim=-1)
+            idx_next = torch.multinomial(probs, num_samples=1)
+        else:
+            idx_next = torch.argmax(logits, dim=-1, keepdim=True)
+            
+        if idx_next == eos_id:
+            break
+
+        idx = torch.cat((idx, idx_next), dim=1)
+    return idx 
+
+def generate_and_print_sample(model, tokenizer, device, start_context, temparature):
+    model.eval()
+    context_size=model.pos_emb.weight.shape[0]
+    encoded = text_to_token_ids(tokenizer=tokenizer, text=start_context).to(device)
+
+    with torch.no_grad():
+        encoded = generate(model, encoded, 50, context_size=context_size, temparature=1.0, top_k=20) 
     
+    decoded = token_ids_to_text(tokenizer=tokenizer, idx=encoded)
+    print(decoded.replace("\n", " "))
+    model.train()
 
 def evaluate_model(model, train_loader, val_loader, device, eval_iter):
     model.eval()
@@ -159,6 +178,7 @@ def training_model(model, train_loader, val_loader, optimizer,
                 print(f"Val loss {val_loss: .3f}")
 
         generate_and_print_sample(model=model, tokenizer=tokenizer, device=device, start_context=start_context, temparature=0.5)
+    
     return train_losses, val_losses, track_token_seen 
 
 torch.manual_seed(123)
@@ -172,7 +192,7 @@ num_epochs = 30
 train_losses, val_losses, tokens_seen = training_model(model=model, train_loader=train_loader, val_loader=val_loader,
                                                        optimizer=optimizer, tokenizer=tokenizer, num_epochs=num_epochs, eval_freq=5,
                                                        eval_iter=5, start_context="Hi, I am", device=device)
-                                                    
+              
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
