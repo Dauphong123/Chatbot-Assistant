@@ -137,7 +137,57 @@ class NormLayer(torch.nn.Module):
         norm_x = (x - mean) / torch.sqrt(var + eps)
         return self.scale * norm_x + self.shift
 
+class GELU(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+    
+    def forward(self, x):
+        return 0.5 * x * (1 + torch.tanh(
+            torch.sqrt(torch.tensor(2.0 / torch.pi)) *
+            (x + 0.044715 * torch.pow(x, 3))
+        ))
 
+class FeedForward(torch.nn.Module):
+    def __init__(self, emb_dim):
+        super().__init__()
+        self.layers = torch.nn.Sequential(
+            torch.nn.Linear(emb_dim, emb_dim * 4),
+            GELU(),
+            torch.nn.Linear(emb_dim * 4, emb_dim) 
+        )
+    
+    def forward(self, x):
+        return self.layers(x)
+
+class TransformerBlock(torch.nn.Module):
+    def __int__(self, cfg):
+        super().__init__()
+        self.norm1 = NormLayer(cfg["emb_dim"])
+        self.norm2 = NormLayer(cfg["emb_dim"])
+        self.ff = FeedForward(cfg["emb_dim"])
+        self.attn = MultiheadAttentionLayer(
+            d_in=cfg["emb_dim"],
+            d_out=cfg["emb_dim"],
+            context_length=cfg["context_length"],
+            dropout=0.1,
+            numheads=cfg["n_heads"],   
+            qkv_bias=cfg["qkv_bias"]
+        )
+        self.dropout = torch.nn.Dropout(cfg["drop_rate"])
+
+    def forward(self, x):
+        skip = x # shortcut
+        x = self.norm1(x)
+        x = self.attn(x)
+        x = self.dropout(x)
+        x += skip
+
+        skip = x # shortcut
+        x = self.norm2(x)
+        x = self.ff(x)
+        x = self.dropout(x)
+        x += skip
+        return x
 
 def create_loader(txt, batch_size=4, max_length=128, stride=128, shuffle=True, drop_last=True, num_worker=0):
     tokenizer = tiktoken.get_encoding("gpt2")
