@@ -159,8 +159,8 @@ class FeedForward(torch.nn.Module):
     def forward(self, x):
         return self.layers(x)
 
-class TransformerBlock(torch.nn.Module):
-    def __int__(self, cfg):
+class TransformerBlock(torch.nn.Moule):
+    def __init__(self, cfg): 
         super().__init__()
         self.norm1 = NormLayer(cfg["emb_dim"])
         self.norm2 = NormLayer(cfg["emb_dim"])
@@ -175,9 +175,9 @@ class TransformerBlock(torch.nn.Module):
         )
         self.dropout = torch.nn.Dropout(cfg["drop_rate"])
 
-    def forward(self, x):
-        skip = x # shortcut
-        x = self.norm1(x)
+    def forward(self, input):
+        skip = input # shortcut
+        x = self.norm1(input)
         x = self.attn(x)
         x = self.dropout(x)
         x += skip
@@ -188,7 +188,38 @@ class TransformerBlock(torch.nn.Module):
         x = self.dropout(x)
         x += skip
         return x
+    
+class GPTModel(torch.nn.Module):
+    def __init__(self, cfg):
+        super().__init__()
+        self.tok_emb = torch.nn.Embedding(cfg["vocab_size", "emb_dim"]) 
+        self.pos_emb = torch.nn.Embedding(cfg["context_length", "emb_dim"])
+        self.dropout = torch.nn.Dropout(cfg["drop_rate"])
 
+        self.trf_block = torch.nn.Sequential(
+            *[TransformerBlock(cfg) for i in range(cfg["n_layers"])]
+        )
+
+        self.final_norm = NormLayer(cfg["emb_dim"])
+        self.out_head = torch.nn.Linear(
+            cfg["emb_dim"], cfg["vocab_size"], bias=False
+        )
+
+    def forward(self, input):
+        # token emb -> transformerblock -> NormLayer -> output
+        b, tok_length = input.shape
+        tok_emb = self.tok_emb(input) 
+        pos_emb = self.pos_emb(
+            torch.arange(tok_length, device=input.device)
+        )
+        
+        x = tok_emb + pos_emb
+        x = self.dropout(x)
+        x = self.trf_block(x)
+        x = self.final_norm(x)
+        logits = self.out_head(x) 
+        return logits
+        
 def create_loader(txt, batch_size=4, max_length=128, stride=128, shuffle=True, drop_last=True, num_worker=0):
     tokenizer = tiktoken.get_encoding("gpt2")
     dataset = GPTDataset(txt=raw_text, tokenizer=tokenizer, max_length=max_length, stride=stride)
