@@ -2,6 +2,7 @@ import tiktoken # byte-pair tokenizer
 import torch
 from torch.utils.data import Dataset, DataLoader
 from llm import GPTModel, GPTDataset
+import numpy as np
 
 GPT_CONFIG_124M = {
     "vocab_size": 50257, # Vocabulary size
@@ -13,8 +14,11 @@ GPT_CONFIG_124M = {
     "qkv_bias": False # Query-Key-Value bias
 }
 
+train_path = "fineweb_train.bin"
+val_path = "fineweb_train.bin"
+
 def text_to_token_ids(tokenizer, text):
-    encoded = tokenizer.encode(text, allowed_special={'|endoftext|'})
+    encoded = tokenizer.encode(text, allowed_special={'<|endoftext|>'})
     encoded_tensor = torch.tensor(encoded)
     if (len(encoded_tensor.shape) == 1):
         encoded_tensor = encoded_tensor.unsqueeze(0)
@@ -25,9 +29,6 @@ def token_ids_to_text(tokenizer, idx):
     return decoded
         
 tokenizer = tiktoken.get_encoding("gpt2")
-with open("the_verdict.txt", "r", encoding="utf-8") as f:
-    raw_text = f.read()
-
 model = GPTModel(GPT_CONFIG_124M)
 
 def simple_text_generate(idx, model, generate_num, context_length):
@@ -43,24 +44,18 @@ def simple_text_generate(idx, model, generate_num, context_length):
     
     return idx
 
-train_ratio = 0.9
-split_idx = int(train_ratio * len(raw_text))
-train_data = raw_text[:split_idx]
-val_data = raw_text[split_idx:]
-
 train_token = GPTDataset(
-    train_data, 
-    tokenizer=tokenizer, 
+    "./data/fineweb_train.bin", 
     max_length=GPT_CONFIG_124M["context_length"], 
     stride=GPT_CONFIG_124M["context_length"]
 )
 
 val_token = GPTDataset(
-    val_data, 
-    tokenizer=tokenizer, 
+    "./data/fineweb_val.bin",
     max_length=GPT_CONFIG_124M["context_length"], 
     stride=GPT_CONFIG_124M["context_length"]
 )
+
 
 train_loader = DataLoader(
     train_token,
@@ -78,12 +73,17 @@ val_loader = DataLoader(
     num_workers=0
 )
 
+
+
 def cal_loss_batch(input_batch, target_batch, model, device):
     input_batch = input_batch.to(device)
     target_batch = target_batch.to(device)
-    logits = model(input_batch)
-
-    loss = torch.nn.functional.cross_entropy(logits.flatten(0, 1), target_batch.flatten(0, 1))
+    with torch.amp.autocast("cuda", dtype=torch.float16):
+        logits = model(input_batch)
+        loss = torch.nn.functional.cross_entropy(
+            logits.flatten(0, 1),
+            target_batch.flatten(0, 1)
+        ) 
     return loss
 
 def calc_loss_loader(loader, model, device, num_batches=None):
@@ -150,10 +150,36 @@ def evaluate_model(model, train_loader, val_loader, device, eval_iter):
         val_loss = calc_loss_loader(val_loader, model, device, num_batches=eval_iter)
     model.train()
     return train_loss, val_loss
+
+def save_checkpoint(
+    model,
+    optimizer,
+    scaler,
+    epoch,
+    global_step,
+    token_seen,
+    train_losses,
+    val_losses,
+    path
+):
+    checkpoint = {
+        "model_state_dict": model.state_dict(),
+        "optimizer_state_dict": optimizer.state_dict(),
+        "scaler_state_dict": scaler.state_dict(),
+
+        "epoch": epoch,
+        "global_step": global_step,
+        "token_seen": token_seen,
+
+        "train_losses": train_losses,
+        "val_losses": val_losses,
+    }
+
+    torch.save(checkpoint, path)
     
 def training_model(model, train_loader, val_loader, optimizer, 
                    device, num_epochs, eval_freq, 
-                   eval_iter, start_context, tokenizer):
+                   eval_iter, start_context, tokenizer, scaler):
    
     train_losses, val_losses, track_token_seen = [], [], []
     token_seen, global_step = 0, -1
@@ -161,10 +187,20 @@ def training_model(model, train_loader, val_loader, optimizer,
         model.train()
         for input_batch, target_batch in train_loader:
             optimizer.zero_grad()
-            loss = cal_loss_batch(input_batch=input_batch, target_batch=target_batch, model=model, device=device)
-            
-            loss.backward()
-            optimizer.step()
+            input_batch = input_batch.to(device)
+            target_batch = target_batch.to(device)
+
+            with torch.amp.autocast("cuda", dtype=torch.float16):
+                logits = model(input_batch)
+
+                loss = torch.nn.functional.cross_entropy(
+                    logits.flatten(0, 1),
+                    target_batch.flatten(0, 1)
+                )
+
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
             token_seen += input_batch.numel()
             global_step += 1
 
@@ -177,21 +213,22 @@ def training_model(model, train_loader, val_loader, optimizer,
                 print(f"Train loss {train_loss: .3f}")
                 print(f"Val loss {val_loss: .3f}")
 
-        generate_and_print_sample(model=model, tokenizer=tokenizer, device=device, start_context=start_context, temparature=0.5)
-    
     return train_losses, val_losses, track_token_seen 
 
 torch.manual_seed(123)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = GPTModel(GPT_CONFIG_124M)
 model.to(device=device)
+scaler = torch.amp.GradScaler("cuda")
 
 optimizer = torch.optim.AdamW(model.parameters(), lr=0.001, weight_decay=0.01)            
 
 num_epochs = 30
 train_losses, val_losses, tokens_seen = training_model(model=model, train_loader=train_loader, val_loader=val_loader,
-                                                       optimizer=optimizer, tokenizer=tokenizer, num_epochs=num_epochs, eval_freq=5,
-                                                       eval_iter=5, start_context="Hi, I am", device=device)
+                                                       optimizer=optimizer, tokenizer=tokenizer, num_epochs=num_epochs, eval_freq=500,
+                                                       eval_iter=5, start_context="Hi, I am", device=device, scaler=scaler)
+
+torch.save(model.state_dict(), "gpt124m_final.pt")
               
 
 import matplotlib.pyplot as plt
