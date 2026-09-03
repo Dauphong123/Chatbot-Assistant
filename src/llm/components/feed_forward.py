@@ -1,5 +1,5 @@
 import torch
-from .GELU import GELU
+from .gelu import GELU
 
 class FeedForward(torch.nn.Module):
     def __init__(self, emb_dim):

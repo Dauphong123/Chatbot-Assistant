@@ -1,13 +1,14 @@
 from datasets import load_dataset
 import tiktoken
 import numpy as np
+import os
+from paths import DATA_DIR
 
-DATASET_NAME = "sample-10BT"
 
-TRAIN_FILE = "./data/fineweb_train.bin"
-VAL_FILE = "./data/fineweb_val.bin"
+TRAIN_FILE = os.path.join(DATA_DIR, "writing_train.bin")
+VAL_FILE = os.path.join(DATA_DIR, "writing_val.bin")
 
-MAX_TOKEN = 10_000_000
+MAX_TOKEN = 800_000
 
 VAL_RATIO = 0.01
 TRAIN_RATIO = 1 - VAL_RATIO
@@ -17,13 +18,13 @@ PRINT_EVERY = 10
 DTYPE = np.uint16
 
 dataset = load_dataset(
-    "HuggingFaceFW/fineweb",
-    name=DATASET_NAME,
+    "NahedAbdelgaber/evaluating-student-writing",
     split="train",
     streaming=True
 )
 
 def main(dataset, max_token = 10_000_000):
+    os.makedirs(DATA_DIR, exist_ok=True)
     tokenizer = tiktoken.get_encoding("gpt2")
     if not tokenizer: 
         print("tokenizer not loaded")
