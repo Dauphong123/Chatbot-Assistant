@@ -1,0 +1,489 @@
+[
+  {
+    "id": "math_001",
+    "theme": "math",
+    "prompt": "What is 15 + 27?",
+    "answer": "42"
+  },
+  {
+    "id": "math_002",
+    "theme": "math",
+    "prompt": "What is 12 × 8?",
+    "answer": "96"
+  },
+  {
+    "id": "math_003",
+    "theme": "math",
+    "prompt": "What is 144 ÷ 12?",
+    "answer": "12"
+  },
+  {
+    "id": "math_004",
+    "theme": "math",
+    "prompt": "What is 25% of 200?",
+    "answer": "50"
+  },
+  {
+    "id": "math_005",
+    "theme": "math",
+    "prompt": "If x + 7 = 15, what is x?",
+    "answer": "8"
+  },
+  {
+    "id": "math_006",
+    "theme": "math",
+    "prompt": "What is 9²?",
+    "answer": "81"
+  },
+  {
+    "id": "math_007",
+    "theme": "math",
+    "prompt": "A shirt costs $40 and is discounted by 25%. What is the new price?",
+    "answer": "$30"
+  },
+  {
+    "id": "math_008",
+    "theme": "math",
+    "prompt": "What is the average of 10, 20, and 30?",
+    "answer": "20"
+  },
+  {
+    "id": "math_009",
+    "theme": "math",
+    "prompt": "If 3 apples cost $6, how much does one apple cost?",
+    "answer": "$2"
+  },
+  {
+    "id": "math_010",
+    "theme": "math",
+    "prompt": "What is 2³ + 4?",
+    "answer": "12"
+  },
+
+  {
+    "id": "reasoning_001",
+    "theme": "reasoning",
+    "prompt": "Tom is taller than Alice. Alice is taller than Bob. Who is the shortest?",
+    "answer": "Bob"
+  },
+  {
+    "id": "reasoning_002",
+    "theme": "reasoning",
+    "prompt": "A train leaves at 10:00 and arrives at 12:30. How long is the journey?",
+    "answer": "2 hours and 30 minutes"
+  },
+  {
+    "id": "reasoning_003",
+    "theme": "reasoning",
+    "prompt": "There are 5 boxes. Each box contains 6 books. How many books are there?",
+    "answer": "30"
+  },
+  {
+    "id": "reasoning_004",
+    "theme": "reasoning",
+    "prompt": "John is older than Sarah. Sarah is older than Mike. Who is the youngest?",
+    "answer": "Mike"
+  },
+  {
+    "id": "reasoning_005",
+    "theme": "reasoning",
+    "prompt": "If all cats are animals and Luna is a cat, is Luna an animal?",
+    "answer": "Yes"
+  },
+  {
+    "id": "reasoning_006",
+    "theme": "reasoning",
+    "prompt": "A room has 4 corners. There is one cat in each corner. How many cats are in the room?",
+    "answer": "4"
+  },
+  {
+    "id": "reasoning_007",
+    "theme": "reasoning",
+    "prompt": "Sarah has more books than Tom. Tom has more books than Lisa. Who has the fewest books?",
+    "answer": "Lisa"
+  },
+  {
+    "id": "reasoning_008",
+    "theme": "reasoning",
+    "prompt": "If today is Monday, what day will it be in three days?",
+    "answer": "Thursday"
+  },
+  {
+    "id": "reasoning_009",
+    "theme": "reasoning",
+    "prompt": "A basket contains 10 red balls and 5 blue balls. Without looking, which color is more likely to be picked?",
+    "answer": "Red"
+  },
+  {
+    "id": "reasoning_010",
+    "theme": "reasoning",
+    "prompt": "Every student in the class owns a notebook. Emma is a student in the class. Does Emma own a notebook?",
+    "answer": "Yes"
+  },
+
+  {
+    "id": "knowledge_001",
+    "theme": "general_knowledge",
+    "prompt": "What is the capital of France?",
+    "answer": "Paris"
+  },
+  {
+    "id": "knowledge_002",
+    "theme": "general_knowledge",
+    "prompt": "How many days are in a week?",
+    "answer": "7"
+  },
+  {
+    "id": "knowledge_003",
+    "theme": "general_knowledge",
+    "prompt": "Which planet is known as the Red Planet?",
+    "answer": "Mars"
+  },
+  {
+    "id": "knowledge_004",
+    "theme": "general_knowledge",
+    "prompt": "What is the largest ocean on Earth?",
+    "answer": "Pacific Ocean"
+  },
+  {
+    "id": "knowledge_005",
+    "theme": "general_knowledge",
+    "prompt": "How many continents are there?",
+    "answer": "7"
+  },
+  {
+    "id": "knowledge_006",
+    "theme": "general_knowledge",
+    "prompt": "What gas do humans need to breathe?",
+    "answer": "Oxygen"
+  },
+  {
+    "id": "knowledge_007",
+    "theme": "general_knowledge",
+    "prompt": "Who wrote Romeo and Juliet?",
+    "answer": "William Shakespeare"
+  },
+  {
+    "id": "knowledge_008",
+    "theme": "general_knowledge",
+    "prompt": "What is the chemical symbol for water?",
+    "answer": "H2O"
+  },
+  {
+    "id": "knowledge_009",
+    "theme": "general_knowledge",
+    "prompt": "What is the fastest land animal?",
+    "answer": "Cheetah"
+  },
+  {
+    "id": "knowledge_010",
+    "theme": "general_knowledge",
+    "prompt": "What is the largest planet in our solar system?",
+    "answer": "Jupiter"
+  },
+
+  {
+    "id": "coding_001",
+    "theme": "coding",
+    "prompt": "Write a Python function called square that takes x and returns its square.",
+    "answer": "def square(x): return x * x"
+  },
+  {
+    "id": "coding_002",
+    "theme": "coding",
+    "prompt": "What does print(len([1, 2, 3])) output in Python?",
+    "answer": "3"
+  },
+  {
+    "id": "coding_003",
+    "theme": "coding",
+    "prompt": "Which Python keyword is used to define a function?",
+    "answer": "def"
+  },
+  {
+    "id": "coding_004",
+    "theme": "coding",
+    "prompt": "What data structure stores key-value pairs in Python?",
+    "answer": "Dictionary"
+  },
+  {
+    "id": "coding_005",
+    "theme": "coding",
+    "prompt": "What does 10 % 3 return in Python?",
+    "answer": "1"
+  },
+  {
+    "id": "coding_006",
+    "theme": "coding",
+    "prompt": "Find the error: if x = 5: print(x)",
+    "answer": "Use == for comparison: if x == 5:"
+  },
+  {
+    "id": "coding_007",
+    "theme": "coding",
+    "prompt": "What keyword is used to create a loop over a sequence in Python?",
+    "answer": "for"
+  },
+  {
+    "id": "coding_008",
+    "theme": "coding",
+    "prompt": "What does len('hello') return?",
+    "answer": "5"
+  },
+  {
+    "id": "coding_009",
+    "theme": "coding",
+    "prompt": "What is the purpose of a return statement in a function?",
+    "answer": "It returns a value from the function."
+  },
+  {
+    "id": "coding_010",
+    "theme": "coding",
+    "prompt": "What symbol starts a single-line comment in Python?",
+    "answer": "#"
+  },
+
+  {
+    "id": "instruction_001",
+    "theme": "instruction_following",
+    "prompt": "Answer with exactly one word: What color is the sky on a clear day?",
+    "answer": "Blue"
+  },
+  {
+    "id": "instruction_002",
+    "theme": "instruction_following",
+    "prompt": "Give me exactly three fruits.",
+    "answer": "Exactly three fruits."
+  },
+  {
+    "id": "instruction_003",
+    "theme": "instruction_following",
+    "prompt": "Answer only with yes or no: Is 10 greater than 5?",
+    "answer": "Yes"
+  },
+  {
+    "id": "instruction_004",
+    "theme": "instruction_following",
+    "prompt": "List these numbers in ascending order: 8, 2, 5, 1.",
+    "answer": "1, 2, 5, 8"
+  },
+  {
+    "id": "instruction_005",
+    "theme": "instruction_following",
+    "prompt": "Give me two examples of programming languages and nothing else.",
+    "answer": "Exactly two programming languages."
+  },
+  {
+    "id": "instruction_006",
+    "theme": "instruction_following",
+    "prompt": "Write the word 'hello' three times.",
+    "answer": "hello hello hello"
+  },
+  {
+    "id": "instruction_007",
+    "theme": "instruction_following",
+    "prompt": "Answer in one sentence: What is a computer?",
+    "answer": "One concise sentence explaining what a computer is."
+  },
+  {
+    "id": "instruction_008",
+    "theme": "instruction_following",
+    "prompt": "Name exactly four animals.",
+    "answer": "Exactly four animals."
+  },
+  {
+    "id": "instruction_009",
+    "theme": "instruction_following",
+    "prompt": "Reverse this word: computer",
+    "answer": "retupmoc"
+  },
+  {
+    "id": "instruction_010",
+    "theme": "instruction_following",
+    "prompt": "Answer with only the number: How many months are in a year?",
+    "answer": "12"
+  },
+
+  {
+    "id": "conversation_001",
+    "theme": "conversation",
+    "prompt": "Hi! How are you?",
+    "answer": "A natural and friendly response."
+  },
+  {
+    "id": "conversation_002",
+    "theme": "conversation",
+    "prompt": "Thanks for your help!",
+    "answer": "A natural response such as 'You're welcome!'"
+  },
+  {
+    "id": "conversation_003",
+    "theme": "conversation",
+    "prompt": "I'm feeling tired today.",
+    "answer": "An empathetic and natural response."
+  },
+  {
+    "id": "conversation_004",
+    "theme": "conversation",
+    "prompt": "Can you help me with something?",
+    "answer": "A helpful response offering assistance."
+  },
+  {
+    "id": "conversation_005",
+    "theme": "conversation",
+    "prompt": "Good morning!",
+    "answer": "A natural greeting."
+  },
+  {
+    "id": "conversation_006",
+    "theme": "conversation",
+    "prompt": "I don't understand this problem.",
+    "answer": "A helpful response asking what part is unclear or offering an explanation."
+  },
+  {
+    "id": "conversation_007",
+    "theme": "conversation",
+    "prompt": "That's really interesting!",
+    "answer": "A natural conversational response."
+  },
+  {
+    "id": "conversation_008",
+    "theme": "conversation",
+    "prompt": "What can you help me with?",
+    "answer": "A concise description of the assistant's capabilities."
+  },
+  {
+    "id": "conversation_009",
+    "theme": "conversation",
+    "prompt": "I'm not sure what to do next.",
+    "answer": "A helpful response asking about the situation and suggesting next steps."
+  },
+  {
+    "id": "conversation_010",
+    "theme": "conversation",
+    "prompt": "See you later!",
+    "answer": "A natural farewell."
+  },
+
+  {
+    "id": "summarization_001",
+    "theme": "summarization",
+    "prompt": "Summarize in one sentence: Dogs are domesticated mammals that have lived alongside humans for thousands of years. They are commonly kept as pets and can also assist humans with various tasks.",
+    "answer": "Dogs are domesticated animals kept as pets that can also assist humans with various tasks."
+  },
+  {
+    "id": "summarization_002",
+    "theme": "summarization",
+    "prompt": "Summarize in one sentence: The Internet connects computers around the world and allows people to communicate and share information.",
+    "answer": "The Internet connects computers worldwide so people can communicate and share information."
+  },
+  {
+    "id": "summarization_003",
+    "theme": "summarization",
+    "prompt": "Summarize in one sentence: Exercise can improve physical health, strengthen muscles, and reduce the risk of many diseases.",
+    "answer": "Exercise improves physical health and can reduce disease risk."
+  },
+  {
+    "id": "summarization_004",
+    "theme": "summarization",
+    "prompt": "Summarize in one sentence: Solar energy comes from the Sun and can be converted into electricity using solar panels.",
+    "answer": "Solar panels convert energy from the Sun into electricity."
+  },
+  {
+    "id": "summarization_005",
+    "theme": "summarization",
+    "prompt": "Summarize in one sentence: Reading regularly can improve vocabulary, comprehension, and general knowledge.",
+    "answer": "Regular reading can improve vocabulary, comprehension, and knowledge."
+  },
+  {
+    "id": "summarization_006",
+    "theme": "summarization",
+    "prompt": "Summarize in one sentence: Water freezes at 0 degrees Celsius and boils at 100 degrees Celsius under normal atmospheric pressure.",
+    "answer": "At normal atmospheric pressure, water freezes at 0°C and boils at 100°C."
+  },
+  {
+    "id": "summarization_007",
+    "theme": "summarization",
+    "prompt": "Summarize in one sentence: A database stores organized information that can be efficiently accessed, modified, and managed.",
+    "answer": "A database organizes information so it can be efficiently accessed and managed."
+  },
+  {
+    "id": "summarization_008",
+    "theme": "summarization",
+    "prompt": "Summarize in one sentence: Plants use sunlight, water, and carbon dioxide to produce energy through photosynthesis.",
+    "answer": "Plants use sunlight, water, and carbon dioxide to produce energy through photosynthesis."
+  },
+  {
+    "id": "summarization_009",
+    "theme": "summarization",
+    "prompt": "Summarize in one sentence: Cloud computing allows users to access computing resources such as storage and processing power over the Internet.",
+    "answer": "Cloud computing provides Internet-based access to computing resources."
+  },
+  {
+    "id": "summarization_010",
+    "theme": "summarization",
+    "prompt": "Summarize in one sentence: Machine learning allows computers to learn patterns from data and use those patterns to make predictions or decisions.",
+    "answer": "Machine learning enables computers to learn patterns from data for predictions or decisions."
+  },
+  {
+    "id": "language_001",
+    "theme": "language",
+    "prompt": "What is the opposite of the word 'ancient'?",
+    "answer": "Modern"
+  },
+  {
+    "id": "language_002",
+    "theme": "language",
+    "prompt": "Which word is a synonym for 'quick'?",
+    "answer": "Fast"
+  },
+  {
+    "id": "language_003",
+    "theme": "language",
+    "prompt": "Is the following sentence grammatically correct? 'She don't like coffee.'",
+    "answer": "No. It should be 'She doesn't like coffee.'"
+  },
+  {
+    "id": "language_004",
+    "theme": "language",
+    "prompt": "What is the plural form of 'child'?",
+    "answer": "Children"
+  },
+  {
+    "id": "language_005",
+    "theme": "language",
+    "prompt": "What is the past tense of 'go'?",
+    "answer": "Went"
+  },
+  {
+    "id": "language_006",
+    "theme": "language",
+    "prompt": "Which word does not belong: apple, banana, carrot, orange?",
+    "answer": "Carrot"
+  },
+  {
+    "id": "language_007",
+    "theme": "language",
+    "prompt": "What does the word 'generous' mean?",
+    "answer": "Willing to give or share freely."
+  },
+  {
+    "id": "language_008",
+    "theme": "language",
+    "prompt": "Complete the sentence: 'If I had more time, I ___ learn another language.'",
+    "answer": "would"
+  },
+  {
+    "id": "language_009",
+    "theme": "language",
+    "prompt": "What is the noun in this sentence: 'The dog chased the ball.'",
+    "answer": "Dog and ball"
+  },
+  {
+    "id": "language_010",
+    "theme": "language",
+    "prompt": "Rewrite this sentence in the past tense: 'John walks to school every morning.'",
+    "answer": "John walked to school every morning."
+  }
+]
+]
