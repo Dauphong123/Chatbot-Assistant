@@ -1,13 +1,12 @@
 # MLL from Scratch
 
-A small GPT-2-style language model implemented with PyTorch, following the
-ideas and progression in Sebastian Raschka's *Build a Large Language Model
-(From Scratch)*.
+A small GPT-2-style decoder-only language model implemented with PyTorch. The
+project follows Sebastian Raschka's _Build a Large Language Model (From
+Scratch)_ and includes tokenization, binary datasets, causal attention,
+feed-forward layers, normalization, pretraining, and text generation.
 
-The project trains a decoder-only transformer on the
-`NahedAbdelgaber/evaluating-student-writing` dataset. It includes the model,
-causal multi-head attention, feed-forward layers, normalization, tokenization,
-binary dataset creation, and a pretraining loop.
+The pretraining pipeline currently streams the
+`HuggingFaceFW/fineweb-edu` `sample-10BT` split.
 
 ## Project Layout
 
@@ -15,19 +14,18 @@ binary dataset creation, and a pretraining loop.
 .
 ├── pyproject.toml       # Package metadata and editable-install config
 ├── scripts/
-│   ├── prepare_data.py  # Stream, tokenize, and save the training data
-│   ├── pretrain.py      # Build the model and run pretraining
-│   ├── training.py      # Training, evaluation, generation, and plotting
-│   └── finetune.py      # Reserved for future fine-tuning code
-├── configs/
-│   └── model_config.py  # Model hyperparameters
-├── requirements.txt     # Python dependencies recorded for the environment
-├── data/
-│   ├── writing_train.bin
-│   └── writing_val.bin
-├── checkpoints/         # Generated model checkpoints
-├── plots/               # Generated loss plots
-├── tests/               # Automated tests
+│   ├── prepare_data_pretraining.py # Create binary pretraining data
+│   ├── prepare_data_finetuning.py  # Create fine-tuning data
+│   ├── pretrain.py                 # Run pretraining
+│   ├── finetuning.py               # Run supervised fine-tuning
+│   ├── evaluate.py                 # Evaluate and generate text
+│   └── training.py                 # Shared training utilities
+├── configs/model_config.py          # Model and optimizer configuration
+├── requirements.txt                 # Python dependencies
+├── data/                            # Generated datasets
+├── checkpoints/                     # Generated model checkpoints
+├── plots/                           # Generated loss plots
+├── runs/                            # TensorBoard event files
 └── src/llm/
     ├── dataset.py       # Memory-mapped token dataset
     ├── model.py         # GPTModel and TransformerBlock
@@ -38,71 +36,86 @@ binary dataset creation, and a pretraining loop.
 
 - Python 3.10 or newer
 - PyTorch 2.x
-- CUDA is recommended for the current training script
+- Internet access is required for the first Hugging Face dataset download
+- CUDA is recommended for training
 
-The scripts also import packages that are not currently listed in
-`requirements.txt`. Install them explicitly if needed:
-
-```bash
-pip install -r requirements.txt
-pip install datasets tiktoken
-pip install -e .
-```
-
-
-## Quick Start
-
-Run commands from the repository root so the relative `./data` paths resolve
-correctly.
-
-### 1. Create the token files
+From the repository root, install the project with:
 
 ```bash
-python scripts/prepare_data.py
+python -m pip install -r requirements.txt
+python -m pip install -e .
 ```
 
-This streams the `train` split from Hugging Face, encodes each document with
-the GPT-2 tokenizer, and writes up to 800,000 `uint16` tokens split into:
+## Data Preparation
 
-- `data/writing_train.bin` (99%)
-- `data/writing_val.bin` (1%)
+Run commands from the repository root so the project paths resolve correctly.
 
-The Hugging Face dataset may require internet access the first time it is
-used.
+```bash
+python scripts/prepare_data_pretraining.py
+```
 
-### 2. Pretrain the model
+This streams `HuggingFaceFW/fineweb-edu` (`sample-10BT`), encodes documents
+with the GPT-2 tokenizer, and writes up to 50,000 `uint16` tokens using a
+90/10 train/validation split:
+
+```text
+data/test_train.bin
+data/test_val.bin
+```
+
+`scripts/pretrain.py` currently expects `data/writing_train.bin` and
+`data/writing_val.bin`. Either copy the generated files before training, or
+update the filenames used by the scripts:
+
+```powershell
+Copy-Item data/test_train.bin data/writing_train.bin
+Copy-Item data/test_val.bin data/writing_val.bin
+```
+
+## Training
 
 ```bash
 python scripts/pretrain.py
 ```
 
-The default configuration is:
+Pretraining saves checkpoints under `checkpoints/pretraining/`, the final
+model state under `checkpoints/gpt124m_final.pt`, TensorBoard logs under
+`runs/`, and loss plots under `plots/`.
 
-| Setting | Value |
-| --- | ---: |
-| Vocabulary size | 50,257 |
-| Context length | 256 |
-| Embedding dimension | 768 |
-| Transformer layers | 12 |
-| Attention heads | 12 |
-| Dropout | 0.1 |
-| Epochs | 10 |
-| Batch size | 2 |
-| Gradient accumulation | 8 steps |
+View the logs with:
 
-Training evaluates every 1,000 steps and prints training and validation loss.
-Loss plots are displayed when training finishes.
+```bash
+tensorboard --logdir runs
+```
 
-## Generated Files
+## Evaluation and Generation
 
-Training writes these artifacts to `checkpoints/`:
+After a compatible pretraining checkpoint exists, run:
 
-- `checkpoints/best_model.pth`: best checkpoint by validation loss, including
-  model and optimizer state
-- `checkpoints/gpt124m_final.pt`: final model state dictionary
+```bash
+python scripts/evaluate.py
+```
 
-The repository may also contain older checkpoints; they are not loaded
-automatically by the current scripts.
+The script loads `checkpoints/pretraining/best.pth`, reports validation loss
+and perplexity, and generates text from the prompt `A student should`.
+
+## Fine-Tuning
+
+Fine-tuning expects:
+
+```text
+data/SFT_train.parquet
+```
+
+Run:
+
+```bash
+python scripts/prepare_data_finetuning.py
+python scripts/finetuning.py
+```
+
+Fine-tuning loads `checkpoints/pretraining/best.pth` and writes checkpoints to
+`checkpoints/finetuning/`.
 
 ## Model
 
@@ -115,16 +128,22 @@ projects hidden states to GPT-2 vocabulary logits.
 prediction pairs. The current pretraining script uses non-overlapping chunks
 of 256 tokens.
 
-## Current Limitations
+## Known Issues
 
-- `scripts/finetune.py` is currently empty.
-- The training loop uses CUDA automatic mixed precision and a CUDA grad scaler;
-	CPU-only training may require adapting those calls.
-- Run `pip install -e .` before training so the `src/llm` package is importable.
-- There are no automated tests or evaluation scripts yet.
+- `scripts/pretrain.py` references an undefined `checkpoint_path` variable
+  when creating the pretraining checkpoint directory.
+- The data preparation and pretraining scripts use different binary filenames,
+  as described above.
+- Fine-tuning contains unfinished arguments and depends on the schema produced
+  by `prepare_data_finetuning.py`.
 
 ## Reference
 
 This project is a learning implementation inspired by:
 
-> Sebastian Raschka, *Build a Large Language Model (From Scratch)*.
+> Sebastian Raschka, _Build a Large Language Model (From Scratch)_.
+
+```
+
+
+```

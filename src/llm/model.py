@@ -1,14 +1,30 @@
 from torch.utils.data import DataLoader, Dataset
 import torch 
-from .components import NormLayer, MultiheadAttentionLayer, FeedForward
+from .components import NormLayer, MultiheadAttentionLayer, FeedForward, MultiheadFlashAttentionLayer
 
 class TransformerBlock(torch.nn.Module):
+    """
+    the core of an transformer Model 
+    
+    with Sequence of 
+    -   norm Layer
+    -   Multihead Attention Layer
+    -   Norm Layer
+    -   Feed Forward Layer
+
+    using shortcut to prevent hollow grad
+
+    Args:
+        cfg(dict): dictionary of config
+
+    
+    """
     def __init__(self, cfg): 
         super().__init__()
         self.norm1 = NormLayer(cfg["emb_dim"])
         self.norm2 = NormLayer(cfg["emb_dim"])
         self.ff = FeedForward(cfg["emb_dim"])
-        self.attn = MultiheadAttentionLayer(
+        self.attn = MultiheadFlashAttentionLayer(
             d_in=cfg["emb_dim"],
             d_out=cfg["emb_dim"],
             context_length=cfg["context_length"],
@@ -33,6 +49,16 @@ class TransformerBlock(torch.nn.Module):
         return x
     
 class GPTModel(torch.nn.Module):
+    """
+    the GPT Model
+
+    first generate token Embedding and position Embedding therefore we get input embedding
+    than we put the out put embedding to the transformer to get the target embedding token
+    we then norm the output then we reverse the embedding to get the end token
+
+    Args:
+        cfg(dict): dictionary of config
+    """
     def __init__(self, cfg):
         super().__init__()
         self.tok_emb = torch.nn.Embedding(cfg["vocab_size"], cfg["emb_dim"]) 
