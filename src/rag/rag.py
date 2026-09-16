@@ -20,7 +20,7 @@ class RAG:
 
         for result in search_results:
             href = result["href"]
-            body = result["body"]
+            body = result["text"]
             document = Document(body, metadata={"source": href})
             self.add_document(document)
 

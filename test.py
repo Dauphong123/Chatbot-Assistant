@@ -14,14 +14,14 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = GPTModel(GPT_CONFIG)
 model.to(DEVICE)
 
-rag = RAG(model, threshhold=0.8)
+rag = RAG(model, threshhold=0.5)
 for path in Path(os.path.join(DOCUMENT_DIR)).glob("*.txt"):
     text = path.read_text(encoding="utf-8")
 
     rag.add_document(Document(text, {"source": str(path)}))
 
-query = "what is one plus one?"
-rag.search(query, max_results=50)
+query = "what is sql?"
+rag.search(query, max_results=10)
 
 results = rag.retrieve(query, top_k=3)
 for result in results:
