@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 from training import plot_losses, training_model
 
 from configs.model_config import FINETUNING_CONFIG, GPT_CONFIG
-from llm import GPTModel
+from src.llm import GPTModel
 
 os.makedirs(CHECKPOINT_DIR, exist_ok=True)
 TRAIN_PATH = os.path.join(DATA_DIR, "SFT_train.parquet")

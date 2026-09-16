@@ -7,6 +7,7 @@ from configs.model_config import GPT_CONFIG
 from scripts.paths import CHECKPOINT_DIR
 from scripts.training import token_ids_to_text
 from src.llm import GPTModel
+from src.rag.rag import RAG
 
 MODEL_PATH = os.path.join(
     CHECKPOINT_DIR,
@@ -84,6 +85,10 @@ def generate(
     return idx
 
 
+def query(rag, query_text, top_k=5):
+    pass
+
+
 def main():
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -126,8 +131,8 @@ def main():
                 idx,
                 max_new_tokens=1,
                 context_size=GPT_CONFIG["context_length"],
-                temperature=0.8,
-                top_k=20,
+                temperature=0.7,
+                top_k=50,
             )
 
             next_token = idx[0, -1].item()
