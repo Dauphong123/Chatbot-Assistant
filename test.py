@@ -20,15 +20,16 @@ for path in Path(os.path.join(DOCUMENT_DIR)).glob("*.txt"):
 
     rag.add_document(Document(text, {"source": str(path)}))
 
-query = "what is sql?"
-rag.search(query, max_results=10)
+query = "What is Rossmann refund policy?"
+rag.search(query, max_results=50)
 
-results = rag.retrieve(query, top_k=3)
+results = rag.retrieve(query, top_k=20, rerank=3)
 for result in results:
     doc = result["document"]
 
     print("=" * 60)
     print("Score:", result["score"])
+    print("Rank Score:", result["rank_score"])
     print("Source:", doc.metadata["source"])
     print()
     print(doc.text)

@@ -1,6 +1,5 @@
 from ddgs import DDGS
 import re
-from sentence_transformers import CrossEncoder
 
 
 def normalize_for_comparison(text: str) -> str:
@@ -48,7 +47,7 @@ def clean_content(content):
 
 class SearchEngineLoader:
     def __init__(self):
-        self.cross_encoder = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+        pass
 
     def search(self, query, max_results=10):
         ddgs = DDGS()

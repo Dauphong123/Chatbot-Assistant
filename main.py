@@ -85,7 +85,7 @@ def generate(
     return idx
 
 
-def query(rag, query_text, top_k=5):
+def context_query(rag, query_text, top_k=5):
     pass
 
 
