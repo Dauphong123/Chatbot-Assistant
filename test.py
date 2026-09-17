@@ -6,7 +6,8 @@ import torch
 from configs.model_config import GPT_CONFIG
 from scripts.paths import CHECKPOINT_DIR, DOCUMENT_DIR
 from src.llm.model import GPTModel
-from src.rag import RAG, Document
+from src.rag import RAG
+from src.rag.components import Document
 
 model_path = os.path.join(CHECKPOINT_DIR, "finetuning", "best.pth")
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -14,13 +15,13 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = GPTModel(GPT_CONFIG)
 model.to(DEVICE)
 
-rag = RAG(model, threshhold=0.5)
+rag = RAG(threshhold=0.5)
 for path in Path(os.path.join(DOCUMENT_DIR)).glob("*.txt"):
     text = path.read_text(encoding="utf-8")
 
     rag.add_document(Document(text, {"source": str(path)}))
 
-query = "What is Rossmann refund policy?"
+query = "What is Sql postgres?"
 rag.search(query, max_results=50)
 
 results = rag.retrieve(query, top_k=20, rerank=3)

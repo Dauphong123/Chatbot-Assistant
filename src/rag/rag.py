@@ -1,18 +1,18 @@
-from src.rag.document import Document
-
-from .chunk import Chunker
-from .embedding import Embedder
-from .search_engine_loader import SearchEngineLoader
-from .vector_store import Vector_store
-from .reranker import Reranker
+from .components import (
+    Embedder,
+    Chunker,
+    Vector_store,
+    SearchEngineLoader,
+    Reranker,
+    Document,
+)
 
 
 class RAG:
-    def __init__(self, llm, threshhold=0.8):
+    def __init__(self, threshhold=0.8):
         self.embedder = Embedder()
         self.chunker = Chunker()
         self.vector_store = Vector_store()
-        self.llm = llm
         self.search_engine = SearchEngineLoader()
         self.threshhold = threshhold
         self.encoder = Reranker()

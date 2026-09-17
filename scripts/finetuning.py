@@ -17,7 +17,7 @@ TRAIN_PATH = os.path.join(DATA_DIR, "SFT_train.parquet")
 VAL_PATH = os.path.join(DATA_DIR, "SFT_val.parquet")
 PRETRAINING_PATH = os.path.join(CHECKPOINT_DIR, "pretraining", "best.pth")
 IGNORE_INDEX = -100
-NUM_EPOCH = 2
+NUM_EPOCH = 1
 ACCUMULATE_STEP = 2
 
 tokenizer = tiktoken.get_encoding("gpt2")
@@ -131,8 +131,8 @@ def main():
         scheduler,
         device,
         NUM_EPOCH,
-        eval_freq=1000,
-        eval_iter=100,
+        eval_freq=2000,
+        eval_iter=50,
         scaler=scaler,
         accumulate_step=ACCUMULATE_STEP,
         checkpoint_dir=os.path.join(CHECKPOINT_DIR, "finetuning"),

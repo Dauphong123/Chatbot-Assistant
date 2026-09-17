@@ -13,7 +13,7 @@ VAL_FILE = os.path.join(DATA_DIR, "SFT_val.parquet")
 
 IGNORE_INDEX = -100
 MAX_CONTEXT = GPT_CONFIG["context_length"]
-MAX_TOKEN = 10_000_000_000
+MAX_TOKEN = 600_000
 
 smoltalk_dataset = load_dataset(
     "HuggingFaceTB/smoltalk",
@@ -21,11 +21,12 @@ smoltalk_dataset = load_dataset(
 )
 ultra_dataset = load_dataset("HuggingFaceH4/ultrachat_200k")
 alpaca_dataset = load_dataset("vicgalle/alpaca-gpt4")
+svamp_dataset = load_dataset("ChilleD/SVAMP")
 
 tokenizer = tiktoken.get_encoding("gpt2")
 
 
-def ngram_repetition_ratio(text, n=3):
+def ngram_repetition_ratio(text, n=0):
     words = text.lower().split()
 
     if len(words) < n:
@@ -186,8 +187,27 @@ def alpaca_format(example):
                 "role": "system",
                 "content": "You are a helpful, accurate, and concise AI assistant. Answer the user's questions clearly and directly.",
             },
-            {"role": "user", "content": example["instruction"]},
-            {"role": "assistant", "content": example["output"]},
+            {
+                "role": "user",
+                "content": example["instruction"].strip()
+                + "\n\n"
+                + example["input"].strip(),
+            },
+            {"role": "assistant", "content": example["output"].strip()},
+        ]
+    }
+
+
+def svamp_format(example):
+    body = example["Body"].strip()
+    question = example["Question"].strip()
+    equation = example["Equation"].strip()
+    result = str(example["Answer"]).strip()
+
+    return {
+        "messages": [
+            {"role": "user", "content": body + ". " + question},
+            {"role": "assistant", "content": equation + "=" + result},
         ]
     }
 
@@ -201,6 +221,12 @@ def main():
     ultra_train = ultra_dataset["train_sft"]
     ultra_val = ultra_dataset["test_sft"]
 
+    svamp_train = svamp_dataset["train"]
+    svamp_val = svamp_dataset["test"]
+
+    svamp_train = svamp_train.map(svamp_format, remove_columns=svamp_train.column_names)
+    svamp_val = svamp_val.map(svamp_format, remove_columns=svamp_val.column_names)
+
     alpaca_train = alpaca_dataset["train"]
 
     alpaca_train = alpaca_train.map(
@@ -209,8 +235,10 @@ def main():
     )
     print(alpaca_train[0])
 
-    ds_train = concatenate_datasets([smoltalk_train, ultra_train])
-    ds_val = concatenate_datasets([smoltalk_val, ultra_val])
+    ds_train = concatenate_datasets(
+        [smoltalk_train, ultra_train, alpaca_train, svamp_train]
+    )
+    ds_val = concatenate_datasets([smoltalk_val, ultra_val, svamp_val])
 
     print(f"Original train samples: {len(ds_train)}")
     print(f"Original val samples:   {len(ds_val)}")
@@ -274,10 +302,6 @@ def main():
                 continue
 
             content = message["content"].strip()
-
-            # 1. Filter out empty or extremely short boilerplate responses
-            if len(content) < 10:  # e.g., "Okay.", "Thanks!", "I see."
-                return False
 
             # 2. Filter out raw code errors / empty markdown snippets
             if content in ["```", "```python\n```", "Undefined"]:

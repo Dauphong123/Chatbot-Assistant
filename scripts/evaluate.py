@@ -13,8 +13,8 @@ from src.llm import GPTDataset, GPTModel
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 TOKENIZER = tiktoken.get_encoding("gpt2")
-PROMPT_FILE = os.path.join(ROOT_DIR, "evaluate_prompt.txt")
-OUTPUT_FILE = os.path.join(CHECKPOINT_DIR, "evaluate_output.txt")
+PROMPT_FILE = os.path.join(ROOT_DIR, "evaluate_prompt.json")
+OUTPUT_FILE = os.path.join(CHECKPOINT_DIR, "evaluate_output.json")
 FINETUNING_PATH = os.path.join(CHECKPOINT_DIR, "finetuning", "best.pth")
 PRETRAINING_PATH = os.path.join(CHECKPOINT_DIR, "pretraining", "best.pth")
 
@@ -32,6 +32,7 @@ def has_repetition(text, n=3):
 
 def load_prompt(prompt_file):
     with open(prompt_file, "r", encoding="utf-8") as f:
+        print(json.load(f))
         return json.load(f)
 
 
