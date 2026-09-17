@@ -10,7 +10,8 @@ The pretraining data script streams the `HuggingFaceFW/fineweb-edu`
 
 ## Training Curve
 
-Example training and validation loss from a completed run:
+Example training and validation loss from a completed run on a machine with
+4 GB of VRAM and 32 GB of system RAM:
 
 ![Training and validation loss](plots/training_loss.png)
 
@@ -45,6 +46,23 @@ Example training and validation loss from a completed run:
 - PyTorch 2.x
 - Internet access is required when downloading datasets or tokenizer files
 - CUDA is recommended for training
+
+### Lower-spec hardware
+
+The included training run was completed on 4 GB of VRAM and 32 GB of system
+RAM. The project can run on similar hardware, but training may require smaller
+batches and shorter sequences. If you run out of GPU memory, start with these
+changes:
+
+- Set `batch_size=1` in `scripts/pretrain.py` and `scripts/finetuning.py`.
+- Reduce `context_length` from 512 to 256 in `configs/model_config.py`.
+- Keep `ACCUMULATE_STEP=2` (or increase it to preserve the effective batch
+  size after lowering the per-device batch size).
+- Set `num_workers=0` if data-loader worker processes use too much system RAM
+  or cause issues on Windows.
+
+Training will be slower on a 4 GB GPU. CPU training is supported through
+PyTorch, but pretraining is expected to take considerably longer.
 
 From the repository root, install the project with:
 
